@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package feitv;
+package view;
 
+import feitv.ControlSignInPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
@@ -101,7 +102,7 @@ public class SignInPanel extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setText("PASSWORD:");
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(null));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel1.setForeground(new java.awt.Color(0, 153, 255));
         jPanel1.setOpaque(false);
 
@@ -153,6 +154,7 @@ public class SignInPanel extends javax.swing.JFrame {
 
         btnConfirm.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnConfirm.setText("CONFIRM");
+        btnConfirm.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnConfirm.addActionListener(this::btnConfirmActionPerformed);
 
         txtUsername.addActionListener(this::txtUsernameActionPerformed);

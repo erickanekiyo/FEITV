@@ -2,8 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package feitv;
+package view;
 
+import feitv.ControlLoginPanel;
+import feitv.User;
 import java.util.ArrayList;
 import javax.swing.JTextField;
 

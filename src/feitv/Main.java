@@ -4,6 +4,8 @@
  */
 package feitv;
 
+import view.SignInPanel;
+
 /**
  *
  * @author ekpri

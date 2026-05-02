@@ -4,6 +4,8 @@
  */
 package feitv;
 
+import view.SignInPanel;
+import view.LoginPanel;
 import java.util.ArrayList;
 
 /**
