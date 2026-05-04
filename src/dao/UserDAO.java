@@ -33,6 +33,34 @@ public class UserDAO {
         
         ResultSet result = statement.getResultSet();
         return result;
-        //
+    }
+    
+    public void inserir(User user) throws SQLException{
+        String sql = "insert into tbusuarios (nome, usuario, senha) values ('"
+                     + user.getName() + "', '"
+                     + user.getPassword() + "', '"
+                     + user.getGender() + "', '"
+                     + user.getAge() + "')";
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.execute();
+        conn.close();
+    }
+    
+    public void atualizar(User user) throws SQLException{
+        String sql = "update tbusuarios set senha = ? where user = ?";
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, user.getPassword());
+        statement.setString(2, user.getName());
+        statement.execute();
+        conn.close();
+    }
+    
+    public void remover(User user) throws SQLException{
+        String sql = "delete from tbusuarios where user = ?";
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, user.getName());
+        statement.execute();
+        conn.close();
     }
 }
+
