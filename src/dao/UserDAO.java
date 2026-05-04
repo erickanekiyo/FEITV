@@ -15,9 +15,9 @@ import feitv.User;
  * @author ekpri
  */
 public class UserDAO {
-    private Connect conn;
+    private Connection conn;
 
-    public UserDAO(Connect conn) {
+    public UserDAO(Connection conn) {
         this.conn = conn;
     }
     
