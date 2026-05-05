@@ -56,7 +56,7 @@ public class ControlLoginPanel {
             }
             
         } catch(SQLException e){
-            JOptionPane.showMessageDialog(view, "Erro de conexão", "Erro", 
+            JOptionPane.showMessageDialog(view, e, "Erro", 
                                           JOptionPane.ERROR_MESSAGE);
         }
     }
