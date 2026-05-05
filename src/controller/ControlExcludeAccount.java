@@ -16,11 +16,11 @@ import javax.swing.JOptionPane;
  *
  * @author ekpri
  */
-public class ControlExclude {
+public class ControlExcludeAccount {
     private ExcludeAccountPanel view;
     private User user;
     
-    public ControlExclude(ExcludeAccountPanel view, User user){
+    public ControlExcludeAccount(ExcludeAccountPanel view, User user){
         this.view = view;
         this.user = user;
     }
