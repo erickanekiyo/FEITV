@@ -4,8 +4,8 @@
  */
 package view;
 
-import feitv.ControlLoginPanel;
-import feitv.User;
+import controller.ControlLoginPanel;
+import model.User;
 import java.util.ArrayList;
 import javax.swing.JTextField;
 

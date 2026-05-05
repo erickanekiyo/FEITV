@@ -4,7 +4,7 @@
  */
 package view;
 
-import feitv.ControlSignInPanel;
+import controller.ControlSignInPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
