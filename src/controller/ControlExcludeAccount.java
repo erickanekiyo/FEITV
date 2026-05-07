@@ -34,7 +34,7 @@ public class ControlExcludeAccount {
             try{
                 Connection conn = connect.getConnection();
                 UserDAO dao= new UserDAO(conn);
-                dao.remover(user);
+                dao.delete(user);
                 JOptionPane.showMessageDialog(view, 
                                       "Usuario removido com Sucesso!", 
                                       "Aviso", JOptionPane.INFORMATION_MESSAGE);

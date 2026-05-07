@@ -34,7 +34,7 @@ public class ControlModifyAccount {
         try{
             Connection conn = connect.getConnection();
             UserDAO dao = new UserDAO(conn);
-            dao.atualizar(user);
+            dao.update(user);
             JOptionPane.showMessageDialog(view, "Alteração Realizada", "Aviso", 
                                           JOptionPane.INFORMATION_MESSAGE);
         }catch(SQLException e){

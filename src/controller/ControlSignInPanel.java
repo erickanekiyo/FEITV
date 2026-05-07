@@ -63,7 +63,7 @@ public class ControlSignInPanel {
 
         try (Connection conn = connect.getConnection()) {
             UserDAO dao = new UserDAO(conn);
-            dao.inserir(user);
+            dao.insert(user);
 
             JOptionPane.showMessageDialog(login, "Usuário Cadastrado!", "Aviso", 
                                           JOptionPane.INFORMATION_MESSAGE);

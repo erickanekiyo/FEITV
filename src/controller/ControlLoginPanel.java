@@ -47,7 +47,9 @@ public class ControlLoginPanel {
                                               JOptionPane.INFORMATION_MESSAGE);
                 String name = res.getString("name");
                 String password = res.getString("password");
-                MenuPanel menu = new MenuPanel();
+                String gender = res.getString("gender");
+                int age = res.getInt("age");
+                MenuPanel menu = new MenuPanel(new User(name,password,gender, age));
                 menu.setVisible(true);
                 view.setVisible(false);
             }else{
