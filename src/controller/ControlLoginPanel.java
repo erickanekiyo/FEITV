@@ -40,7 +40,7 @@ public class ControlLoginPanel {
         try{
             Connection conn = connect.getConnection();
             UserDAO dao = new UserDAO(conn);
-            ResultSet res = dao.consultar(user);
+            ResultSet res = dao.check(user);
             
             if(res.next()){
                 JOptionPane.showMessageDialog(view, "Login Feito", "Aviso", 

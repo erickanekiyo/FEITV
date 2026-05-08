@@ -6,7 +6,6 @@ package view;
 
 import controller.ControlLoginPanel;
 import model.User;
-import java.util.ArrayList;
 import javax.swing.JTextField;
 
 /**
@@ -14,7 +13,6 @@ import javax.swing.JTextField;
  * @author ekpri
  */
 public class LoginPanel extends javax.swing.JFrame {
-    ArrayList<User> usuarios;
     ControlLoginPanel control;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginPanel.class.getName());
 
@@ -23,14 +21,9 @@ public class LoginPanel extends javax.swing.JFrame {
      */
     
     
-    public LoginPanel(ArrayList<User> usuarios) {
-        initComponents();
-        this.usuarios = usuarios;
-        control = new ControlLoginPanel(this, usuarios);
-    }
-
     public LoginPanel() {
         initComponents();
+        control = new ControlLoginPanel(this);
     }
 
     public JTextField getTxtPassword() {

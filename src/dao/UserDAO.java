@@ -21,14 +21,12 @@ public class UserDAO {
         this.conn = conn;
     }
     
-    public ResultSet consultar(User user) throws SQLException{
+    public ResultSet check(User user) throws SQLException{
         String sql = "select * from tbusuarios "
-                + "where name = ? and password = ? and gender = ? and age = ?";
+                + "where name = ? and password = ?";
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, user.getName());
         statement.setString(2, user.getPassword());
-        statement.setString(3, user.getGender());
-        statement.setInt(4, user.getAge());
         statement.execute();
         
         ResultSet result = statement.getResultSet();

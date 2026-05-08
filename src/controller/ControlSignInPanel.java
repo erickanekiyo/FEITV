@@ -9,7 +9,6 @@ import dao.UserDAO;
 import view.SignInPanel;
 import view.LoginPanel;
 import model.User;
-import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -21,7 +20,7 @@ import javax.swing.JOptionPane;
 public class ControlSignInPanel {
     private SignInPanel view;
     private LoginPanel login;
-    private ArrayList<User> usuarios = new ArrayList<>();
+    private User user;
 
     public ControlSignInPanel(SignInPanel view) {
         this.view = view;
@@ -67,6 +66,8 @@ public class ControlSignInPanel {
 
             JOptionPane.showMessageDialog(login, "Usuário Cadastrado!", "Aviso", 
                                           JOptionPane.INFORMATION_MESSAGE);
+            LoginPanel loginPnl = new LoginPanel();
+            loginPnl.setVisible(true);
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(login, "Usuário não cadastrado: " 
