@@ -4,17 +4,18 @@
  */
 package controller;
 
-import dao.UserDAO;
 import dao.Connect;
-import model.User;
-import view.LoginPanel;
-import view.MenuPanel;
-
+import dao.UserDAO;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import model.User;
+import view.LoginPanel;
+import view.MenuPanel;
+
+
 
 /**
  *
@@ -58,7 +59,7 @@ public class ControlLoginPanel {
             }
             
         } catch(SQLException e){
-            JOptionPane.showMessageDialog(view, e, "Erro", 
+            JOptionPane.showMessageDialog(view, e.getMessage(), "Erro", 
                                           JOptionPane.ERROR_MESSAGE);
         }
     }

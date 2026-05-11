@@ -12,6 +12,14 @@ public class User {
     private String name, password, gender;
     private int age;
 
+    public User() {
+    }
+    
+    public User(String name, String password) {
+        this.name = name;
+        this.password = password;
+    }
+
     public User(String name, String password, String gender, int age) {
         this.name = name;
         this.password = password;
@@ -19,11 +27,7 @@ public class User {
         this.age = age;
     }
 
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-    }
-
+    //GETTERS & SETTERS
     public String getName() {
         return name;
     }
