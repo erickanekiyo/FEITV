@@ -57,7 +57,7 @@ public class MenuPanel extends javax.swing.JFrame {
     }
     
     private JPanel createVideo(Video video) {
-        JPanel card = new JPanel();
+        JPanel card = new JPanel(new BorderLayout());
 
         JLabel thumb = new JLabel(video.getTitle());
         thumb.setPreferredSize(new Dimension(320, 180));
