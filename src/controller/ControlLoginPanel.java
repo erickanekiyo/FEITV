@@ -50,7 +50,10 @@ public class ControlLoginPanel {
                 String password = res.getString("password");
                 String gender = res.getString("gender");
                 int age = res.getInt("age");
-                MenuPanel menu = new MenuPanel(new User(name,password,gender, age));
+                int id = res.getInt("id");
+                User loggedUser = new User(name, password, gender, age, id);
+                
+                MenuPanel menu = new MenuPanel(this, conn, loggedUser);
                 menu.setVisible(true);
                 view.setVisible(false);
             }else{

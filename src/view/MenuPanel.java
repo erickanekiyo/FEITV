@@ -14,12 +14,11 @@ import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import model.User;
-import model.Video;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import model.User;
+import model.Video;
 
 
 /**
@@ -29,27 +28,24 @@ import javax.swing.SwingConstants;
 public class MenuPanel extends javax.swing.JFrame {
     private Connection conn;
     private ControlLoginPanel cLogin;
+    private User user;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MenuPanel.class.getName());
     
-    /**
-     * Creates new form MenuPanel
-     */
-    public MenuPanel(User user) {
-        initComponents();
-        lblUsername.setText(user.getName());
-    }
 
-    public MenuPanel(ControlLoginPanel cLogin, Connection conn)
-                                            throws SQLException {
+    public MenuPanel(ControlLoginPanel cLogin, Connection conn, User user)
+                                                     throws SQLException {
         initComponents();
         this.cLogin = cLogin;
         this.conn = conn;
+        this.user = user;
+        lblUsername.setText(user.getName());
+        
         JPanel grid = new JPanel(new GridLayout(0, 3, 10, 10));
         scrollpnlMenu.setViewportView(grid);
 
         VideoDAO dao = new VideoDAO(conn);
-        List<Video> videos = dao.listVideos();
+        List<Video> videos = dao.listVideos(user.getId());
 
         for (Video v : videos) {
             grid.add(createVideo(v));
@@ -80,8 +76,7 @@ public class MenuPanel extends javax.swing.JFrame {
         
         card.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(null,"Abrindo: "
-                                              + video.getTitle());
+                new VideoInfoPanel().setVisible(true);
             }
         });
 

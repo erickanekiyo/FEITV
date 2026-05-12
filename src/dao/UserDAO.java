@@ -22,8 +22,7 @@ public class UserDAO {
     }
     
     public ResultSet check(User user) throws SQLException{
-        String sql = "select * from tbusuarios "
-                + "where name = ? and password = ?";
+        String sql = "select * from tbusers where name = ? and password = ?";
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, user.getName());
         statement.setString(2, user.getPassword());
@@ -34,7 +33,7 @@ public class UserDAO {
     }
     
     public void insert(User user) throws SQLException{
-        String sql = "insert into tbusuarios (name, password, gender, age) "
+        String sql = "insert into tbusers (name, password, gender, age) "
                      + "values ('"
                      + user.getName() + "', '"
                      + user.getPassword() + "', '"
@@ -46,7 +45,7 @@ public class UserDAO {
     }
     
     public void update(User user) throws SQLException{
-        String sql = "update tbusuarios set password = ? where name = ?";
+        String sql = "update tbusers set password = ? where name = ?";
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, user.getPassword());
         statement.setString(2, user.getName());
@@ -55,7 +54,7 @@ public class UserDAO {
     }
     
     public void delete(User user) throws SQLException{
-        String sql = "delete from tbusuarios where name = ?";
+        String sql = "delete from tbusers where name = ?";
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, user.getName());
         statement.execute();

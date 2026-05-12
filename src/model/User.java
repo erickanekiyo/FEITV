@@ -10,7 +10,7 @@ package model;
  */
 public class User {
     private String name, password, gender;
-    private int age;
+    private int age, id;
 
     public User() {
     }
@@ -25,6 +25,14 @@ public class User {
         this.password = password;
         this.gender = gender;
         this.age = age;
+    }
+
+    public User(String name, String password, String gender, int age, int id) {
+        this.name = name;
+        this.password = password;
+        this.gender = gender;
+        this.age = age;
+        this.id = id;
     }
 
     //GETTERS & SETTERS
@@ -59,4 +67,14 @@ public class User {
     public void setAge(int age) {
         this.age = age;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    
 }

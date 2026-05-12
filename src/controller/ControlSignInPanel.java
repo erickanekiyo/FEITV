@@ -26,25 +26,6 @@ public class ControlSignInPanel {
         this.view = view;
     }
     
-//    public void register(){
-//        String name = this.view.getTxtUsername().getText();
-//        int age = Integer.parseInt(this.view.getTxtAge().getText());
-//        String password = this.view.getTxtPassword().getText();
-//        String gender = "";
-//        
-//        if(this.view.getRadBntMale().isSelected())
-//            gender = "Male";
-//        else if(this.view.getRadBntFemale().isSelected())
-//            gender = "Female";
-//        else
-//            gender = "Other";
-//        
-//        usuarios.add(new User(name, password, gender, age));
-//        
-//        LoginPanel loginPnl = new LoginPanel(usuarios);
-//        loginPnl.setVisible(true);
-//    }
-    
     public void register() {
         String name = view.getTxtUsername().getText();
         String password = view.getTxtPassword().getText();
@@ -56,16 +37,19 @@ public class ControlSignInPanel {
         else
             gender = "Other";
         int age = Integer.parseInt(view.getTxtAge().getText());
+        
+        
 
-        User user = new User(name, password, gender, age);
+        User newUser = new User(name, password, gender, age);
         Connect connect = new Connect();
 
         try (Connection conn = connect.getConnection()) {
             UserDAO dao = new UserDAO(conn);
-            dao.insert(user);
+            dao.insert(newUser);
 
             JOptionPane.showMessageDialog(login, "Usuário Cadastrado!", "Aviso", 
                                           JOptionPane.INFORMATION_MESSAGE);
+            view.setVisible(false);
             LoginPanel loginPnl = new LoginPanel();
             loginPnl.setVisible(true);
         } catch (SQLException e) {
