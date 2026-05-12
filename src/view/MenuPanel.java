@@ -7,13 +7,17 @@ package view;
 import controller.ControlLoginPanel;
 import dao.VideoDAO;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -34,46 +38,80 @@ public class MenuPanel extends javax.swing.JFrame {
     
 
     public MenuPanel(ControlLoginPanel cLogin, Connection conn, User user)
-                                                     throws SQLException {
+                                                           throws SQLException {
         initComponents();
         this.cLogin = cLogin;
         this.conn = conn;
         this.user = user;
         lblUsername.setText(user.getName());
-        
-        JPanel grid = new JPanel(new GridLayout(0, 3, 10, 10));
-        scrollpnlMenu.setViewportView(grid);
 
         VideoDAO dao = new VideoDAO(conn);
-        List<Video> videos = dao.listVideos(user.getId());
+        loadVideos(dao.listVideos(user.getId()));
 
-        for (Video v : videos) {
-            grid.add(createVideo(v));
-        }
+        //Start the search field
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent key) {
+                String words = txtSearch.getText().trim();
+                try {
+                    VideoDAO dao = new VideoDAO(conn);
+                    List<Video> videos;
+                    if (words.isEmpty()) {
+                        videos = dao.listVideos(user.getId());
+                    }else{
+                        videos = dao.searchByTitle(words);
+                    }
+                    loadVideos(videos);
+                }catch (SQLException e) {
+                    javax.swing.JOptionPane.showMessageDialog(null,
+                                         e.getMessage(),"Erro",
+                                         javax.swing.JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
     
     private JPanel createVideo(Video video) {
+        //Set card size
         JPanel card = new JPanel(new BorderLayout());
+        card.setPreferredSize(new Dimension(300, 230));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        
+        //Set image size 
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/"
+                                                    + "default_thumbnail.png"));
+        Image scaledImage = icon.getImage().getScaledInstance(300, 150, 
+                                                            Image.SCALE_SMOOTH);
+        
+        //Set thumbnail
+        JLabel thumb = new JLabel(new ImageIcon(scaledImage));
+        thumb.setHorizontalAlignment(SwingConstants.LEFT);
 
-        JLabel thumb = new JLabel(video.getTitle());
-        thumb.setPreferredSize(new Dimension(320, 180));
-        thumb.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // Informações
+        //Set informations
         JLabel title = new JLabel(video.getTitle());
         int time = video.getDuration();
-        int min = time/60;
+        int hour = time/3600;
+        int min = (time%3600)/60;
         int sec = time % 60;
-        JLabel duration = new JLabel("Time: " + min + ":" + String.format("%02d"
-                                                                        , sec));
-        JPanel info = new JPanel(new GridLayout(2, 1));
+        String strTime;
+        
+        if(hour < 0) {
+            strTime = String.format("%02d:%02d", min, sec);
+        }else{
+            strTime = String.format("%02d:%02d:%02d", hour, min, sec);
+        }
+        JLabel duration = new JLabel("Time: " + strTime);
+        
+        JPanel info = new JPanel(new GridLayout(2, 1, 0, 5));
+        info.setBackground(Color.WHITE);
+        info.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
         info.add(title);
         info.add(duration);
 
         card.add(thumb, BorderLayout.CENTER);
         card.add(info, BorderLayout.SOUTH);
-
         
+        //Open video info
         card.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 new VideoInfoPanel().setVisible(true);
@@ -81,7 +119,24 @@ public class MenuPanel extends javax.swing.JFrame {
         });
 
         return card;
+    }
     
+    private void loadVideos(List<Video> videos) {
+        JPanel grid = new JPanel(new GridLayout(0, 4, 20, 20));
+        
+        for (Video v : videos) {
+            //Secure the scale of the card will be respect
+            JPanel wrapper = 
+            new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+            wrapper.setOpaque(false);
+            
+            wrapper.add(createVideo(v));
+            grid.add(wrapper);
+        }
+        
+        scrollpnlMenu.setViewportView(grid);
+        scrollpnlMenu.revalidate();
+        scrollpnlMenu.repaint();
     }
 
     /**
@@ -96,6 +151,10 @@ public class MenuPanel extends javax.swing.JFrame {
         lblUsername = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         scrollpnlMenu = new javax.swing.JScrollPane();
+        lblUserIcon = new javax.swing.JLabel();
+        lblSearchIcon = new javax.swing.JLabel();
+        txtSearch = new javax.swing.JTextField();
+        lblFavIcon = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -105,35 +164,52 @@ public class MenuPanel extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addComponent(scrollpnlMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(scrollpnlMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 1295, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scrollpnlMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 629, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 11, Short.MAX_VALUE)
+                .addComponent(scrollpnlMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 618, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        lblUserIcon.setText("jLabel1");
+
+        lblSearchIcon.setText("iconSearch");
+
+        lblFavIcon.setText("FAV");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addComponent(lblUsername)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 712, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(lblUserIcon)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(237, 237, 237)
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblSearchIcon)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblUsername)
-                .addGap(18, 18, 18)
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE, false)
+                    .addComponent(lblUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblUserIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSearchIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearch)
+                    .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -164,10 +240,14 @@ public class MenuPanel extends javax.swing.JFrame {
 //        /* Create and display the form */
 //        java.awt.EventQueue.invokeLater(() -> new MenuPanel().setVisible(true));
 //    }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblFavIcon;
+    private javax.swing.JLabel lblSearchIcon;
+    private javax.swing.JLabel lblUserIcon;
     private javax.swing.JLabel lblUsername;
     private javax.swing.JScrollPane scrollpnlMenu;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

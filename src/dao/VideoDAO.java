@@ -73,6 +73,7 @@ public class VideoDAO {
     //Verify if the video was liked by the user
     public boolean isLiked(int idUser, int idVideo) throws SQLException {
         String sql = "SELECT 1 FROM tblikes WHERE id_user = ? AND id_video = ?";
+        
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, idUser);
             statement.setInt(2, idVideo);
@@ -85,6 +86,7 @@ public class VideoDAO {
     //Like vídeo
     public void likeVideo(int idUser, int idVideo) throws SQLException {
         String sql = "INSERT INTO tblikes (id_user, id_video) VALUES (?, ?)";
+        
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, idUser);
             statement.setInt(2, idVideo);
@@ -95,10 +97,51 @@ public class VideoDAO {
     //Dislike vídeo
     public void unlikeVideo(int idUser, int idVideo) throws SQLException {
         String sql = "DELETE FROM tblikes WHERE id_user = ? AND id_video = ?";
+        
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, idUser);
             statement.setInt(2, idVideo);
             statement.executeUpdate();
         }
+    }
+    
+    //Add vídeo into list
+    public void addToList(int idUser, int idVideo) throws SQLException {
+        String sql = "INSERT INTO tblist (id_user, id_video) VALUES (?, ?)";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setInt(2, idVideo);
+            statement.executeUpdate();
+        }
+    }
+
+    //Remove vídeo of the list
+    public void removeFromList(int idUser, int idVideo) throws SQLException {
+        String sql = "DELETE FROM tblist WHERE id_user = ? AND id_video = ?";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setInt(2, idVideo);
+            statement.executeUpdate();
+        }
+    }
+    
+    //Search video by name inside public list
+    public List<Video> searchByTitle(String title) throws SQLException {
+        List<Video> list = new ArrayList<>();
+        String sql = "SELECT * FROM tbvideos "
+                     + "WHERE title ILIKE ? "
+                     + "ORDER BY data_up DESC";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, "%" + title + "%");
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    list.add(buildVideo(result));
+                }
+            }
+        }
+        return list;
     }
 }

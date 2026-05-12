@@ -80,6 +80,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jButton2.setForeground(new java.awt.Color(0, 153, 153));
         jButton2.setText("REGISTER");
+        jButton2.setToolTipText("");
         jButton2.setBorderPainted(false);
         jButton2.setContentAreaFilled(false);
         jButton2.addActionListener(this::jButton2ActionPerformed);
@@ -90,9 +91,6 @@ public class LoginPanel extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(350, 350, 350)
-                        .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(355, 355, 355)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -109,7 +107,10 @@ public class LoginPanel extends javax.swing.JFrame {
                         .addGap(300, 300, 300)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)))
+                        .addComponent(jButton2))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(350, 350, 350)
+                        .addComponent(jLabel1)))
                 .addContainerGap(277, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
