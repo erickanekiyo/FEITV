@@ -5,13 +5,29 @@
 package view;
 
 import controller.ControlLoginPanel;
+import dao.VideoDAO;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import model.User;
+import model.Video;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 
 /**
  *
  * @author ekpri
  */
 public class MenuPanel extends javax.swing.JFrame {
+    private Connection conn;
     private ControlLoginPanel cLogin;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MenuPanel.class.getName());
@@ -22,6 +38,55 @@ public class MenuPanel extends javax.swing.JFrame {
     public MenuPanel(User user) {
         initComponents();
         lblUsername.setText(user.getName());
+    }
+
+    public MenuPanel(ControlLoginPanel cLogin, Connection conn)
+                                            throws SQLException {
+        initComponents();
+        this.cLogin = cLogin;
+        this.conn = conn;
+        JPanel grid = new JPanel(new GridLayout(0, 3, 10, 10));
+        scrollpnlMenu.setViewportView(grid);
+
+        VideoDAO dao = new VideoDAO(conn);
+        List<Video> videos = dao.listVideos();
+
+        for (Video v : videos) {
+            grid.add(createVideo(v));
+        }
+    }
+    
+    private JPanel createVideo(Video video) {
+        JPanel card = new JPanel();
+
+        JLabel thumb = new JLabel(video.getTitle());
+        thumb.setPreferredSize(new Dimension(320, 180));
+        thumb.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Informações
+        JLabel title = new JLabel(video.getTitle());
+        int time = video.getDuration();
+        int min = time/60;
+        int sec = time % 60;
+        JLabel duration = new JLabel("Time: " + min + ":" + String.format("%02d"
+                                                                        , sec));
+        JPanel info = new JPanel(new GridLayout(2, 1));
+        info.add(title);
+        info.add(duration);
+
+        card.add(thumb, BorderLayout.CENTER);
+        card.add(info, BorderLayout.SOUTH);
+
+        
+        card.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(null,"Abrindo: "
+                                              + video.getTitle());
+            }
+        });
+
+        return card;
+    
     }
 
     /**

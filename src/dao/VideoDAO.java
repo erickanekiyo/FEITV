@@ -39,9 +39,6 @@ public class VideoDAO {
                 video.setDataUp(result.getTimestamp("data_up"));
                 list.add(video);
             }
-        }catch(SQLException e){
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
-                                          JOptionPane.ERROR_MESSAGE);
         }
         
         return list;
