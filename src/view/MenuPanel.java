@@ -53,34 +53,49 @@ public class MenuPanel extends javax.swing.JFrame {
         
         //Start the search field
         txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
             public void keyReleased(java.awt.event.KeyEvent key) {
                 String words = txtSearch.getText().trim();
                 try {
-                    VideoDAO dao = new VideoDAO(conn);
-                    List<Video> videos;
-                    
-                    if(words.isEmpty()) {
-                        videos = dao.listVideos(user.getId());
+                    VideoDAO videoDAO = new VideoDAO(conn);
+
+                    //When search field is empty shows the history
+                    if (words.isEmpty()) {
+                        loadVideos(videoDAO.listVideos(user.getId()));
                         showHistory();
-                    }else{
-                        videos = dao.searchByTitle(words);
-                        if(key.getKeyCode()==java.awt.event.KeyEvent.VK_ENTER) {
-                            SearchHistoryDAO historyDAO = 
-                                                     new SearchHistoryDAO(conn);
-                            historyDAO.saveSearch(user.getId(), words);
+                        return;
+                    }
+
+                    //Trigger search and save when ENTER is pressed
+                    if (key.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                        SearchHistoryDAO historyDAO = new SearchHistoryDAO(conn);
+                        List<Video> videos = videoDAO.searchByTitle(words);
+
+                        historyDAO.saveSearch(user.getId(), words);
+
+                        //Return result of the search
+                        if (videos.isEmpty()) {
+                            javax.swing.JOptionPane.showMessageDialog(null,
+                                "Nenhum vídeo encontrado: " + words, "Busca",
+                                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            javax.swing.JOptionPane.showMessageDialog(null,
+                                "Resultados encontrados", "Busca", 
+                                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                            loadVideos(videos);
                         }
                     }
-                    loadVideos(videos);
-                }catch(SQLException e){
-                    javax.swing.JOptionPane.showMessageDialog(null, 
-                                         e.getMessage(),"Erro", 
-                                         javax.swing.JOptionPane.ERROR_MESSAGE);
+                } catch (SQLException e) {
+                    javax.swing.JOptionPane.showMessageDialog(null,
+                        e.getMessage(), "Erro",
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
         
         //Shows history when clicked in search field
         txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
             public void focusGained(java.awt.event.FocusEvent ev) {
                 if(txtSearch.getText().trim().isEmpty()) {
                     showHistory();
