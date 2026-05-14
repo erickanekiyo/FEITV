@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import model.Movie;
+import model.Serie;
 import model.Video;
 
 /**
@@ -23,30 +25,43 @@ public class VideoDAO {
         this.conn = conn;
     }
     
-    //Constructor to build Video object 
-    private Video buildVideo(ResultSet result) throws SQLException {
-        Video video = new Video();
-        video.setId(result.getInt("id"));
-        video.setTitle(result.getString("title"));
-        video.setThumb(result.getString("thumb"));
-        video.setDuration(result.getInt("duration"));
-        video.setDataUp(result.getTimestamp("data_up"));
-        video.setDescription(result.getString("description"));
-        return video;
+    //Constructor to build Movie object 
+    private Movie buildMovie(ResultSet result) throws SQLException {
+        Movie movie = new Movie();
+        movie.setId(result.getInt("id"));
+        movie.setThumb(result.getString("thumb"));
+        movie.setTitle(result.getString("title"));
+        movie.setDuration(result.getInt("duration"));
+        movie.setDataUp(result.getTimestamp("data_up"));
+        movie.setDescription(result.getString("description"));
+        return movie;
+    }
+    
+    //Constructor to build Serie object 
+    private Serie buildSerie(ResultSet result) throws SQLException {
+        Serie serie = new Serie();
+        serie.setId(result.getInt("id"));
+        serie.setThumb(result.getString("thumb"));
+        serie.setTitle(result.getString("title"));
+        serie.setDuration(result.getInt("duration"));
+        serie.setDataUp(result.getTimestamp("data_up"));
+        serie.setDescription(result.getString("description"));
+        return serie;
     }
     
     //List videos from the DATABASE
     public List<Video> listVideos(int idUser) throws SQLException {
         List<Video> list = new ArrayList<>();
-        String sql = "SELECT * FROM tbvideos ORDER BY data_up DESC";
-
-        try (PreparedStatement statement = conn.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                Video video = buildVideo(result);
-                video.setLikeState(isLiked(idUser, video.getId()));
-                list.add(buildVideo(result));
-            }
+        MovieDAO movieDAO = new MovieDAO(conn);
+        SerieDAO serieDAO = new SerieDAO(conn);
+        
+        for (Movie f : movieDAO.listMovie()) {
+            f.setLikeState(isLiked(idUser, f.getId()));
+            list.add(f);
+        }
+        for (Serie s : serieDAO.listSerie()) {
+            s.setLikeState(isLiked(idUser, s.getId()));
+            list.add(s);
         }
         return list;
     }
@@ -54,8 +69,14 @@ public class VideoDAO {
     //List videos in the favorist list of the user
     public List<Video> listFavVideos(int idUser) throws SQLException {
         List<Video> list = new ArrayList<>();
-        String sql = "SELECT video.* FROM tbvideos video "
-                     + "JOIN tblist list ON video.id = list.id_video "
+        String sql = "SELECT video.*, "
+                     + "CASE "
+                     + "WHEN movie.id IS NOT NULL THEN 'movie' "
+                     + "ELSE 'serie' "
+                     + "END AS word "
+                     + "FROM tbvideos video "
+                     + "INNER JOIN tblist list ON video.id = list.id_video "
+                     + "LEFT JOIN tbmovies movie ON video.id = movie.id "
                      + "WHERE list.id_user = ? "
                      + "ORDER BY list.data_add DESC";
 
@@ -63,7 +84,14 @@ public class VideoDAO {
             statement.setInt(1, idUser);
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    list.add(buildVideo(result));
+                    Video video;
+                    if (result.getString("word").equals("movie")) {
+                        video = buildMovie(result);
+                    } else {
+                        video = buildSerie(result);
+                    }
+                    video.setLikeState(isLiked(idUser, video.getId()));
+                    list.add(video);
                 }
             }
         }
@@ -108,7 +136,7 @@ public class VideoDAO {
     //Add vídeo into list
     public void addToList(int idUser, int idVideo) throws SQLException {
         String sql = "INSERT INTO tblist (id_user, id_video) VALUES (?, ?)";
-
+        
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, idUser);
             statement.setInt(2, idVideo);
@@ -119,7 +147,7 @@ public class VideoDAO {
     //Remove vídeo of the list
     public void removeFromList(int idUser, int idVideo) throws SQLException {
         String sql = "DELETE FROM tblist WHERE id_user = ? AND id_video = ?";
-
+        
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, idUser);
             statement.setInt(2, idVideo);
@@ -127,18 +155,28 @@ public class VideoDAO {
         }
     }
     
-    //Search video by name inside public list
+    // Busca por título na lista geral
     public List<Video> searchByTitle(String title) throws SQLException {
         List<Video> list = new ArrayList<>();
-        String sql = "SELECT * FROM tbvideos "
-                     + "WHERE title ILIKE ? "
-                     + "ORDER BY data_up DESC";
+        String sql = "SELECT video.*, "
+                   + "CASE WHEN movie.id IS NOT NULL "
+                   + "THEN 'movie' ELSE 'serie' END AS type "
+                   + "FROM tbvideos video "
+                   + "LEFT JOIN tbmovies movie ON video.id = movie.id "
+                   + "WHERE video.title ILIKE ? "
+                   + "ORDER BY video.data_up DESC";
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, "%" + title + "%");
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    list.add(buildVideo(result));
+                    Video video;
+                    if (result.getString("type").equals("filme")) {
+                        video = buildMovie(result);
+                    } else {
+                        video = buildSerie(result);
+                    }
+                    list.add(video);
                 }
             }
         }

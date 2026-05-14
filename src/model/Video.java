@@ -10,13 +10,10 @@ import java.sql.Timestamp;
  *
  * @author ekpri
  */
-public class Video {
+public abstract class Video {
     private boolean likeState;
-    private int duration;
-    private int id;
-    private String thumb;
-    private String title;
-    private String description;
+    private int duration, id;
+    private String thumb, title, description;
     private Timestamp dataUp;
 
     public Video() {
