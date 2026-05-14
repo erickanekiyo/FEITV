@@ -81,7 +81,7 @@ public class MenuPanel extends javax.swing.JFrame {
         
         //Shows history when clicked in search field
         txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void TriggerHistory(java.awt.event.FocusEvent ev) {
+            public void focusGained(java.awt.event.FocusEvent ev) {
                 if(txtSearch.getText().trim().isEmpty()) {
                     showHistory();
                 }
