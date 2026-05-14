@@ -4,6 +4,8 @@
  */
 package model;
 
+import java.sql.Timestamp;
+
 /**
  *
  * @author ekpri
@@ -12,10 +14,21 @@ package model;
 public class Serie extends Video implements State {
     private int episode, totalEpisodes;
     private String currentState;
-
+    
     public Serie() {
         this.currentState = State.NOT_STARTED;
     }
+    
+    public Serie(int episode, int totalEpisodes, String currentState, 
+        String title, String thumb, String description, int duration, 
+        boolean likeState, Timestamp dataUp) {
+        
+        super(title, thumb, description, duration, likeState, dataUp);
+        this.episode = episode;
+        this.totalEpisodes = totalEpisodes;
+        this.currentState = currentState;
+    }
+    
     
     @Override
     public String getCurrentState() {
@@ -31,12 +44,12 @@ public class Serie extends Video implements State {
     public boolean isFinished() {
         return this.currentState.equals(State.FINISHED);
     }
-
+    
     @Override
     public boolean isWatching() {
         return this.currentState.equals(State.WATCHING);
     }
-
+    
     
     //GETTERS & SETTERS
     public int getEpisode() {

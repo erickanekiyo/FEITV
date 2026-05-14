@@ -155,7 +155,7 @@ public class VideoDAO {
         }
     }
     
-    // Busca por título na lista geral
+    //Search by title in SQL
     public List<Video> searchByTitle(String title) throws SQLException {
         List<Video> list = new ArrayList<>();
         String sql = "SELECT video.*, "

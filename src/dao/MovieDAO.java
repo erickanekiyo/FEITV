@@ -38,7 +38,7 @@ public class MovieDAO {
         return movie;
     }
     
-    public List<Movie> listFilmes() throws SQLException {
+    public List<Movie> listMovie() throws SQLException {
         List<Movie> list = new ArrayList<>();
         String sql = "SELECT video.*, movie.director, movie.genre "
                      + "FROM tbvideos video "
@@ -46,7 +46,7 @@ public class MovieDAO {
                      + "ORDER BY video.data_up DESC";
 
         try (PreparedStatement statement = conn.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
+            ResultSet result = statement.executeQuery()) {
             while (result.next()) {
                 list.add(buildFilme(result));
             }
@@ -67,14 +67,14 @@ public class MovieDAO {
             
             try (ResultSet result = statementVideo.executeQuery()) {
                 if (result.next()) {
-                    int idGerado = result.getInt("id");
+                    int id = result.getInt("id");
                     String sqlMovie = "INSERT INTO tbmovies (id, director, genre) "
-                                    + "VALUES (?, ?, ?)";
+                                      + "VALUES (?, ?, ?)";
                     
                     try (PreparedStatement statementMovie = 
-                         conn.prepareStatement(sqlMovie)) {
+                        conn.prepareStatement(sqlMovie)) {
                         
-                        statementMovie.setInt(1, idGerado);
+                        statementMovie.setInt(1, id);
                         statementMovie.setString(2, movie.getDirector());
                         statementMovie.setString(3, movie.getGenre());
                         statementMovie.executeUpdate();

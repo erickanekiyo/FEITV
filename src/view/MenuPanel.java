@@ -6,6 +6,7 @@ package view;
 
 import controller.ControlLoginPanel;
 import dao.VideoDAO;
+import dao.SearchHistoryDAO;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,7 +20,9 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import model.User;
 import model.Video;
@@ -44,10 +47,10 @@ public class MenuPanel extends javax.swing.JFrame {
         this.conn = conn;
         this.user = user;
         lblUsername.setText(user.getName());
-
+        
         VideoDAO dao = new VideoDAO(conn);
         loadVideos(dao.listVideos(user.getId()));
-
+        
         //Start the search field
         txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent key) {
@@ -55,19 +58,66 @@ public class MenuPanel extends javax.swing.JFrame {
                 try {
                     VideoDAO dao = new VideoDAO(conn);
                     List<Video> videos;
-                    if (words.isEmpty()) {
+                    
+                    if(words.isEmpty()) {
                         videos = dao.listVideos(user.getId());
+                        showHistory();
                     }else{
                         videos = dao.searchByTitle(words);
+                        if(key.getKeyCode()==java.awt.event.KeyEvent.VK_ENTER) {
+                            SearchHistoryDAO historyDAO = 
+                                                     new SearchHistoryDAO(conn);
+                            historyDAO.saveSearch(user.getId(), words);
+                        }
                     }
                     loadVideos(videos);
-                }catch (SQLException e) {
-                    javax.swing.JOptionPane.showMessageDialog(null,
-                                         e.getMessage(),"Erro",
+                }catch(SQLException e){
+                    javax.swing.JOptionPane.showMessageDialog(null, 
+                                         e.getMessage(),"Erro", 
                                          javax.swing.JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
+        
+        //Shows history when clicked in search field
+        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void TriggerHistory(java.awt.event.FocusEvent ev) {
+                if(txtSearch.getText().trim().isEmpty()) {
+                    showHistory();
+                }
+            }
+        });
+    }
+    
+    private void showHistory() {
+        try {
+            SearchHistoryDAO historyDAO = new SearchHistoryDAO(conn);
+            List<String> history = historyDAO.getHistory(user.getId());
+            
+            if(history.isEmpty()) {
+                return;
+            }
+            
+            //Shows a popup under the search field
+            JPopupMenu popup = new JPopupMenu();
+            
+            //Insert inside popup history
+            for(String word : history) {
+                JMenuItem item = new JMenuItem(word);
+                item.addActionListener(ev -> {
+                    txtSearch.setText(word);
+                    popup.setVisible(false);
+                });
+                popup.add(item);
+            }
+            
+            popup.show(txtSearch, 0, txtSearch.getHeight());
+        }catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void hideHistory() {
     }
     
     private JPanel createVideo(Video video) {
@@ -124,7 +174,7 @@ public class MenuPanel extends javax.swing.JFrame {
     private void loadVideos(List<Video> videos) {
         JPanel grid = new JPanel(new GridLayout(0, 4, 20, 20));
         
-        for (Video v : videos) {
+        for(Video v : videos) {
             //Secure the scale of the card will be respect
             JPanel wrapper = 
             new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
