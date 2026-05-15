@@ -1,12 +1,12 @@
 FEITV
 
-Uma plataforma de streaming desktop desenvolvida em Java como projeto acadêmico, inspirada no YouTube. O FEITV permite que usuários cadastrem contas, naveguem por filmes e séries, curtam conteúdos e gerenciem suas listas de reprodução — tudo integrado a um banco de dados PostgreSQL.
+Uma simulação de plataforma de streaming desenvolvida em Java como projeto acadêmico, inspirada no YouTube. Permite que usuários cadastrem contas, naveguem por filmes e séries, curtam conteúdos e gerenciem suas listas de reprodução. Integrando a um banco de dados PostgreSQL.
 
 ---
 
 Sobre o projeto
 
-O projeto tem o objetivo de colocar em prática conceitos de orientação a objetos, banco de dados relacional e desenvolvimento de interfaces gráficas em Java. A ideia era simples: criar algo parecido com o YouTube, mas no desktop, onde o usuário pode explorar um catálogo de filmes e séries, salvar favoritos e acompanhar o progresso das séries que está assistindo.
+O projeto tem o objetivo de colocar em prática conceitos de orientação a objetos, banco de dados relacional e desenvolvimento de interfaces gráficas em Java. A ideia é criar algo parecido com o YouTube, onde o usuário pode explorar um catálogo de videos, salvar favoritos e acompanhar o progresso das séries que está assistindo.
 
 ---
 
