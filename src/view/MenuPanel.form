@@ -29,15 +29,15 @@
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-              <Component id="lblUserIcon" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="lblUsername" min="-2" pref="67" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="237" max="-2" attributes="0"/>
+              <Component id="lblUserIcon" min="-2" pref="37" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="lblUsername" min="-2" pref="73" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="225" max="-2" attributes="0"/>
               <Component id="txtSearch" min="-2" pref="435" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="lblSearchIcon" min="-2" max="-2" attributes="0"/>
+              <Component id="lblSearchIcon" min="-2" pref="35" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
-              <Component id="lblFavIcon" min="-2" pref="47" max="-2" attributes="0"/>
+              <Component id="lblFavIcon" min="-2" pref="41" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -46,12 +46,12 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" max="-2" attributes="0">
-                  <Component id="lblUsername" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="lblUsername" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="lblUserIcon" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                   <Component id="lblSearchIcon" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                  <Component id="txtSearch" alignment="3" max="32767" attributes="0"/>
                   <Component id="lblFavIcon" min="-2" pref="35" max="-2" attributes="0"/>
+                  <Component id="txtSearch" alignment="0" min="-2" pref="34" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel1" max="32767" attributes="0"/>
@@ -63,6 +63,11 @@
     <Component class="javax.swing.JLabel" name="lblUsername">
       <Properties>
         <Property name="text" type="java.lang.String" value="LOGADO"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="jPanel1">
@@ -90,21 +95,12 @@
       </SubComponents>
     </Container>
     <Component class="javax.swing.JLabel" name="lblUserIcon">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jLabel1"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblSearchIcon">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="iconSearch"/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtSearch">
     </Component>
     <Component class="javax.swing.JLabel" name="lblFavIcon">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="FAV"/>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>
