@@ -6,9 +6,12 @@ package view;
 
 import controller.ControlMovieInfo;
 import java.awt.Cursor;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.sql.SQLException;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import model.Movie;
@@ -34,10 +37,18 @@ public class MovieInfoPanel extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         this.movie = movie;
         this.user = user;
+        this.conn = conn;
         this.control = new ControlMovieInfo(conn);
         
         loadInfo();
-        asButton();
+        
+        //Set Icon Image
+        setScaledIcon(lblFavIcon, "/resources/star.png");
+        setScaledIcon(lblThumb, "/resources/default_thumbnail.png");
+        lblFavIcon.setEnabled(false);
+        
+        //Set Icons as button
+        asButton(lblFavIcon, () -> btnAddListActionPerformed());
     }
     
     private void asButton(JLabel label, Runnable action) {
@@ -54,37 +65,59 @@ public class MovieInfoPanel extends javax.swing.JFrame {
         lblTitle.setText(movie.getTitle());
         lblDirector.setText("Director: " + movie.getDirector());
         lblGenre.setText("Genre: " + movie.getGenre());
-        lblDescrip.setText(movie.getDescription());
-        
+        lblDescrp.setText(movie.getDescription());
         lblTime.setText("Time: " + control.formatDuration(movie.getDuration()));
         
+        try {
+            boolean isFavorite = control.checkIfFavorite(user, movie);
+            lblFavIcon.setEnabled(isFavorite);
+        } catch (SQLException e) {
+            lblFavIcon.setEnabled(false);
+            System.err.println("Erro ao verificar favorito: " + e.getMessage());
+        }
+        
         updateLikeButton();
+    }
+    
+    private void setScaledIcon(JLabel label, String resourcePath) {
+        try {
+            ImageIcon originalIcon = 
+                new ImageIcon(getClass().getResource(resourcePath));
+
+            int width = label.getWidth();
+            int height = label.getHeight();
+
+            Image scaledImg = originalIcon.getImage().getScaledInstance(
+                    width, height, Image.SCALE_SMOOTH
+            );
+            label.setIcon(new ImageIcon(scaledImg));
+        } catch (Exception e) {
+            System.err.println("Erro ao cargegar ícone: " + resourcePath);
+        }
     }
 
     private void updateLikeButton() {
         try {
             boolean liked = control.checkIfLiked(user, movie);
-            btnLike.setText(liked ? "Liked" : "Dislike");
-        } catch (SQLException e) {
-            showError(e.getMessage());
-        }
-    }
-
-    private void btnLikeActionPerformed() {
-        try {
-            control.toggleLike(user, movie);
-            updateLikeButton();
-        } catch (SQLException e) {
-            showError(e.getMessage());
+            btnLike.setText(liked ? "Dislike" : "Like");
+        }catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e, "Erro", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void btnAddListActionPerformed() {
         try {
             control.addMovieToList(user, movie);
-            JOptionPane.showMessageDialog(this, "Adicionado à lista!");
-        } catch (SQLException e) {
-            showError(e.getMessage());
+            
+            lblFavIcon.setEnabled(true);
+            JOptionPane.showMessageDialog(this, "Adicionado aos favoritos!");
+        
+            new FavoritesPanel().setVisible(true);
+            this.dispose();
+        }catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao adicionar aos favoritos: " + e.getMessage());
         }
     }
 
@@ -104,11 +137,9 @@ public class MovieInfoPanel extends javax.swing.JFrame {
         lblGenre = new javax.swing.JLabel();
         lblDescrp = new javax.swing.JLabel();
         btnLike = new javax.swing.JButton();
-        lblFav = new javax.swing.JLabel();
+        lblFavIcon = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        lblThumb.setText("thumb");
 
         lblTitle.setText("TITLE");
 
@@ -121,9 +152,9 @@ public class MovieInfoPanel extends javax.swing.JFrame {
 
         lblDescrp.setBorder(javax.swing.BorderFactory.createTitledBorder("DESCRIPTION"));
 
-        btnLike.setText("jButton1");
+        btnLike.addActionListener(this::btnLikeActionPerformed);
 
-        lblFav.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        lblFavIcon.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -131,49 +162,62 @@ public class MovieInfoPanel extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblFav, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(lblThumb, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblDescrp, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblDescrp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblGenre, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblDirector, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(124, 124, 124)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lblTime, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnLike))
-                        .addGap(2, 2, 2)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblGenre, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(lblDirector, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(144, 144, 144)))
+                            .addComponent(lblThumb, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblFavIcon, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnLike, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblFav, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnLike, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(lblThumb, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lblTime, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
-                            .addComponent(lblDirector, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(lblDirector, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6)
-                        .addComponent(lblGenre)))
-                .addGap(18, 18, 18)
-                .addComponent(lblDescrp, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                        .addComponent(lblGenre))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(185, 185, 185)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnLike, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTime, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+                                .addGap(45, 45, 45)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblDescrp, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLikeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLikeActionPerformed
+        try {
+            control.toggleLike(user, movie);
+        }catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao processar like: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnLikeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -204,7 +248,7 @@ public class MovieInfoPanel extends javax.swing.JFrame {
     private javax.swing.JButton btnLike;
     private javax.swing.JLabel lblDescrp;
     private javax.swing.JLabel lblDirector;
-    private javax.swing.JLabel lblFav;
+    private javax.swing.JLabel lblFavIcon;
     private javax.swing.JLabel lblGenre;
     private javax.swing.JLabel lblThumb;
     private javax.swing.JLabel lblTime;

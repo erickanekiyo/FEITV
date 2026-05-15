@@ -46,7 +46,36 @@ public class VideoDAO {
         serie.setDuration(result.getInt("duration"));
         serie.setDataUp(result.getTimestamp("data_up"));
         serie.setDescription(result.getString("description"));
+        serie.setTotalEpisodes(result.getInt("total_episodes"));
         return serie;
+    }
+    
+    public void setEpisodeWatched(int idUser, int idVideo) throws SQLException {
+        String sql = "INSERT INTO "
+                     + "tbhistory (id_user, id_video, last_watched) "
+                     + "VALUES (?, ?, NOW()) ON CONFLICT (id_user, id_video) " 
+                     + "DO UPDATE "
+                     + "SET watched_count = tbhistory.watched_count + 1";
+        
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setInt(2, idVideo);
+            statement.executeUpdate();
+        }
+    }
+    
+    public int countWatchedEpisodes(int idUser, int idVideo) throws SQLException {
+        String sql = "SELECT watched_count "
+                   + "FROM tbhistory WHERE id_user = ? AND id_video = ?";
+        
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setInt(2, idVideo);
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt("watched_count");
+            }
+        }
+        return 0;
     }
     
     //List videos from the DATABASE
@@ -69,14 +98,14 @@ public class VideoDAO {
     //List videos in the favorist list of the user
     public List<Video> listFavVideos(int idUser) throws SQLException {
         List<Video> list = new ArrayList<>();
-        String sql = "SELECT video.*, "
-                     + "CASE "
-                     + "WHEN movie.id IS NOT NULL THEN 'movie' "
-                     + "ELSE 'serie' "
-                     + "END AS word "
+        String sql = "SELECT v.*, "
+                     + "CASE WHEN movie.id IS NOT NULL THEN 'movie' "
+                     + "ELSE 'serie' END AS type, "
+                     + "serie.total_episodes "
                      + "FROM tbvideos video "
                      + "INNER JOIN tblist list ON video.id = list.id_video "
                      + "LEFT JOIN tbmovies movie ON video.id = movie.id "
+                     + "LEFT JOIN tbseries serie ON video.id = serie.id "
                      + "WHERE list.id_user = ? "
                      + "ORDER BY list.data_add DESC";
 
@@ -84,12 +113,9 @@ public class VideoDAO {
             statement.setInt(1, idUser);
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    Video video;
-                    if (result.getString("word").equals("movie")) {
-                        video = buildMovie(result);
-                    } else {
-                        video = buildSerie(result);
-                    }
+                    Video video = result.getString("type").equals("movie") 
+                                  ? buildMovie(result) : buildSerie(result);
+                    
                     video.setLikeState(isLiked(idUser, video.getId()));
                     list.add(video);
                 }
@@ -155,23 +181,37 @@ public class VideoDAO {
         }
     }
     
+    public boolean isVideoInList(int idUser, int idVideo) throws SQLException {
+        String sql = "SELECT 1 FROM tblist WHERE id_user = ? AND id_video = ?";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setInt(2, idVideo);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next(); // Retorna true se encontrar um registro
+            }
+        }
+    }
+    
     //Search by title in SQL
     public List<Video> searchByTitle(String title) throws SQLException {
         List<Video> list = new ArrayList<>();
         String sql = "SELECT video.*, "
-                   + "CASE WHEN movie.id IS NOT NULL "
-                   + "THEN 'movie' ELSE 'serie' END AS type "
-                   + "FROM tbvideos video "
-                   + "LEFT JOIN tbmovies movie ON video.id = movie.id "
-                   + "WHERE video.title ILIKE ? "
-                   + "ORDER BY video.data_up DESC";
+                     + "serie.total_episodes, "
+                     + "CASE WHEN movie.id IS NOT NULL "
+                     + "THEN 'movie' ELSE 'serie' END AS type "
+                     + "FROM tbvideos video "
+                     + "LEFT JOIN tbmovies movie ON video.id = movie.id "
+                     + "LEFT JOIN tbseries serie ON video.id = serie.id "
+                     + "WHERE video.title ILIKE ? "
+                     + "ORDER BY video.data_up DESC";
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, "%" + title + "%");
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     Video video;
-                    if (result.getString("type").equals("filme")) {
+                    if (result.getString("type").equals("movie")) {
                         video = buildMovie(result);
                     } else {
                         video = buildSerie(result);

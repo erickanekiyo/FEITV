@@ -4,19 +4,135 @@
  */
 package view;
 
+import controller.ControlSerieInfo;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import model.Serie;
+import model.User;
 /**
  *
  * @author ekpri
  */
 public class SerieInfoPanel extends javax.swing.JFrame {
+    private Serie serie;
+    private User user;
+    private ControlSerieInfo control;
+    private Connection conn;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(SerieInfoPanel.class.getName());
 
     /**
      * Creates new form SerieInfoPanel
      */
-    public SerieInfoPanel() {
+    public SerieInfoPanel(Serie serie, User user, Connection conn) {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.serie = serie;
+        this.user = user;
+        this.conn = conn;
+        this.control = new ControlSerieInfo(conn);
+        
+        setScaledIcon(lblFav, "/resources/star.png");
+        setScaledIcon(lblThumb, "/resources/default_thumbnail.png");
+        
+        loadInfo();
+        
+        asButton(lblCurrentEp, () -> episodeClicked(serie.getId()));
+        asButton(lblFav, () -> btnAddListActionPerformed());
+    }
+    
+    private void asButton(JLabel label, Runnable action) {
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                action.run();
+            }
+        });
+    }
+    
+    private void episodeClicked(int episodeId) {
+        try {
+            control.markAsWatched(user, episodeId);
+            
+            refreshProgress();
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao atualizar episódio: " + e.getMessage());
+        }
+    }
+
+    private void refreshProgress() {
+        try {
+            int watched = control.getWatchedCount(user, serie);
+            int total = serie.getTotalEpisodes();
+            
+            lblCurrentEp.setText(String.valueOf(watched));
+            
+            int percent = control.calculateProgress(watched, total);
+            lblState.setText(percent + "% Completo");
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar progresso: " + e.getMessage());
+        }
+    }
+
+    private void loadInfo() {
+        lblTitle.setText(serie.getTitle());
+        lblDescrp.setText(serie.getDescription());
+        lblTotalEp.setText(String.valueOf(serie.getTotalEpisodes()));
+        
+        try {
+            boolean isFav = control.checkIfFavorite(user, serie);
+            lblFav.setEnabled(isFav);
+        } catch (SQLException e) {
+            lblFav.setEnabled(false);
+        }
+        
+        refreshProgress();
+        updateLikeButton();
+    }
+    
+    private void setScaledIcon(JLabel label, String resourcePath) {
+        try {
+            ImageIcon originalIcon = new ImageIcon(getClass().getResource(resourcePath));
+            Image scaledImg = originalIcon.getImage().getScaledInstance(
+                    label.getWidth(), label.getHeight(), Image.SCALE_SMOOTH
+            );
+            label.setIcon(new ImageIcon(scaledImg));
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar ícone: " + resourcePath);
+        }
+    }
+    
+    private void updateLikeButton() {
+        try {
+            boolean liked = control.checkIfLiked(user, serie);
+            btnLike.setText(liked ? "Dislike" : "Like");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar curtida: " 
+                + e.getMessage());
+        }
+    }                               
+
+    private void btnAddListActionPerformed() {
+        try {
+            control.addSerieToList(user, serie);
+            lblFav.setEnabled(true);
+            JOptionPane.showMessageDialog(this, "Adicionada aos favoritos!");
+            
+            new FavoritesPanel().setVisible(true);
+            this.dispose();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+        }
     }
 
     /**
@@ -44,20 +160,15 @@ public class SerieInfoPanel extends javax.swing.JFrame {
 
         lblFav.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        lblThumb.setText("thumb");
-
         lblCurrentEp.setText("0");
         lblCurrentEp.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder("EP")));
 
         lblTime.setText("TIME");
 
-        btnLike.setText("jButton1");
         btnLike.addActionListener(this::btnLikeActionPerformed);
 
-        lblTotalEp.setText("jLabel2");
         lblTotalEp.setBorder(javax.swing.BorderFactory.createTitledBorder("TOTAL"));
 
-        lblState.setText("jLabel3");
         lblState.setBorder(javax.swing.BorderFactory.createTitledBorder("STATE"));
 
         lblDescrp.setBorder(javax.swing.BorderFactory.createTitledBorder("DESCRIPTION"));
@@ -81,10 +192,10 @@ public class SerieInfoPanel extends javax.swing.JFrame {
                                 .addComponent(lblCurrentEp, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lblTotalEp, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblTime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnLike, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addComponent(btnLike, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblTime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(lblDescrp, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18))
         );
@@ -116,33 +227,38 @@ public class SerieInfoPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLikeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLikeActionPerformed
-        // TODO add your handling code here:
+        try {
+            control.toggleLike(user, serie);
+            updateLikeButton();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao processar like: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnLikeActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new SerieInfoPanel().setVisible(true));
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+//            logger.log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(() -> new SerieInfoPanel().setVisible(true));
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLike;

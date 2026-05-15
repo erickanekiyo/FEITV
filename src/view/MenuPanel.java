@@ -59,8 +59,14 @@ public class MenuPanel extends javax.swing.JFrame {
         this.user = user;
         lblUsername.setText(user.getName());
         
-        VideoDAO dao = new VideoDAO(conn);
-        loadVideos(dao.listVideos(user.getId()));
+        try {
+            VideoDAO dao = new VideoDAO(conn);
+            List<Video> todosOsVideos = dao.listVideos(user.getId());
+            loadVideos(todosOsVideos); 
+        } catch (SQLException e) {
+            System.err.println("Erro ao carregar: " + e.getMessage());
+            e.printStackTrace();
+        }
         
         //Build Icons in the Menu
         setScaledIcon(lblSearchIcon, "/resources/lupa.png");
@@ -83,39 +89,31 @@ public class MenuPanel extends javax.swing.JFrame {
             @Override
             public void keyReleased(KeyEvent key) {
                 String words = txtSearch.getText().trim();
+                VideoDAO videoDAO = new VideoDAO(conn);
                 try {
-                    VideoDAO videoDAO = new VideoDAO(conn);
-
                     //When search field is empty shows the history
                     if(words.isEmpty()) {
                         loadVideos(videoDAO.listVideos(user.getId()));
                         showHistory();
-                    }else{
-                        hideHistory();
-                        //Trigger search and save when ENTER is pressed
-                        if (key.getKeyCode() == KeyEvent.VK_ENTER) {
-                            SearchHistoryDAO historyDAO = 
-                                new SearchHistoryDAO(conn);
-                            List<Video> videos = videoDAO.searchByTitle(words);
+                        return;
+                    }
+                    
+                    hideHistory();
+                    
+                    //Just search and Save when ENTER is pressed
+                    if (key.getKeyCode() == KeyEvent.VK_ENTER) {
+                        List<Video> resultados = videoDAO.searchByTitle(words);
 
-                            historyDAO.saveSearch(user.getId(), words);
-
-                            //Return result of the search
-                            if (videos.isEmpty()) {
-                                JOptionPane.showMessageDialog(null,
-                                    "Nenhum vídeo encontrado: " + words,"Busca",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            }else{
-                                JOptionPane.showMessageDialog(null,
-                                    "Resultados encontrados", "Busca", 
-                                    JOptionPane.INFORMATION_MESSAGE);
-                                loadVideos(videos);
-                            }
+                        if (resultados.isEmpty()) {
+                            JOptionPane.showMessageDialog(null, 
+                                "Nada encontrado para: " + words);
+                            loadVideos(videoDAO.listVideos(user.getId()));
+                        } else {
+                            loadVideos(resultados);
                         }
                     }
-                }catch(SQLException e) {
-                    JOptionPane.showMessageDialog(null, e.getMessage(), "Erro",
-                        JOptionPane.ERROR_MESSAGE);
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -314,17 +312,20 @@ public class MenuPanel extends javax.swing.JFrame {
     private void loadVideos(List<Video> videos) {
         JPanel grid = new JPanel(new GridLayout(0, 4, 20, 20));
         
-        for(Video v : videos) {
-            //Secure the scale of the card will be respect
-            JPanel wrapper = 
-            new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-            wrapper.setOpaque(false);
-            
-            wrapper.add(createVideo(v));
-            grid.add(wrapper);
+        if (videos != null) {
+            for(Video v : videos) {
+                //Secure the scale of the card will be respect
+                JPanel wrapper = 
+                new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+                wrapper.setOpaque(false);
+
+                wrapper.add(createVideo(v));
+                grid.add(wrapper);
+            }
         }
-        
         scrollpnlMenu.setViewportView(grid);
+        grid.revalidate();
+        grid.repaint();
         scrollpnlMenu.revalidate();
         scrollpnlMenu.repaint();
     }
