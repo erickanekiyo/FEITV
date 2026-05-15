@@ -21,10 +21,10 @@ public class SearchHistoryDAO {
     //Return words from searched history
     public List<String> getHistory(int idUser) throws SQLException {
         List<String> list = new ArrayList<>();
-        String sql = "SELECT DISTINCT search_term FROM tbsearch_history "
+        String sql = "SELECT search_term FROM tbsearch_history "
                      + "WHERE id_user = ? "
-                     + "ORDER BY MAX(searched_at) DESC "
                      + "GROUP BY search_term "
+                     + "ORDER BY MAX(searched_at) DESC "
                      + "LIMIT 10";
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {

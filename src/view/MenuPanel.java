@@ -9,20 +9,27 @@ import dao.VideoDAO;
 import dao.SearchHistoryDAO;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import model.User;
 import model.Video;
@@ -35,6 +42,7 @@ import model.Video;
 public class MenuPanel extends javax.swing.JFrame {
     private Connection conn;
     private ControlLoginPanel cLogin;
+    private javax.swing.JDialog historyDialog;
     private User user;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MenuPanel.class.getName());
@@ -52,52 +60,51 @@ public class MenuPanel extends javax.swing.JFrame {
         loadVideos(dao.listVideos(user.getId()));
         
         //Start the search field
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtSearch.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent key) {
+            public void keyReleased(KeyEvent key) {
                 String words = txtSearch.getText().trim();
                 try {
                     VideoDAO videoDAO = new VideoDAO(conn);
 
                     //When search field is empty shows the history
-                    if (words.isEmpty()) {
+                    if(words.isEmpty()) {
                         loadVideos(videoDAO.listVideos(user.getId()));
                         showHistory();
-                        return;
-                    }
+                    }else{
+                        hideHistory();
+                        //Trigger search and save when ENTER is pressed
+                        if (key.getKeyCode() == KeyEvent.VK_ENTER) {
+                            SearchHistoryDAO historyDAO = 
+                                new SearchHistoryDAO(conn);
+                            List<Video> videos = videoDAO.searchByTitle(words);
 
-                    //Trigger search and save when ENTER is pressed
-                    if (key.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                        SearchHistoryDAO historyDAO = new SearchHistoryDAO(conn);
-                        List<Video> videos = videoDAO.searchByTitle(words);
+                            historyDAO.saveSearch(user.getId(), words);
 
-                        historyDAO.saveSearch(user.getId(), words);
-
-                        //Return result of the search
-                        if (videos.isEmpty()) {
-                            javax.swing.JOptionPane.showMessageDialog(null,
-                                "Nenhum vídeo encontrado: " + words, "Busca",
-                                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            javax.swing.JOptionPane.showMessageDialog(null,
-                                "Resultados encontrados", "Busca", 
-                                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-                            loadVideos(videos);
+                            //Return result of the search
+                            if (videos.isEmpty()) {
+                                JOptionPane.showMessageDialog(null,
+                                    "Nenhum vídeo encontrado: " + words,"Busca",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            }else{
+                                JOptionPane.showMessageDialog(null,
+                                    "Resultados encontrados", "Busca", 
+                                    JOptionPane.INFORMATION_MESSAGE);
+                                loadVideos(videos);
+                            }
                         }
                     }
-                } catch (SQLException e) {
-                    javax.swing.JOptionPane.showMessageDialog(null,
-                        e.getMessage(), "Erro",
-                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                }catch(SQLException e) {
+                    JOptionPane.showMessageDialog(null, e.getMessage(), "Erro",
+                        JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
         
         //Shows history when clicked in search field
-        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusGained(java.awt.event.FocusEvent ev) {
-                if(txtSearch.getText().trim().isEmpty()) {
+        txtSearch.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (txtSearch.getText().trim().isEmpty()) {
                     showHistory();
                 }
             }
@@ -109,30 +116,85 @@ public class MenuPanel extends javax.swing.JFrame {
             SearchHistoryDAO historyDAO = new SearchHistoryDAO(conn);
             List<String> history = historyDAO.getHistory(user.getId());
             
-            if(history.isEmpty()) {
-                return;
+            if (history.isEmpty()) return;
+            
+            //Close dialog if it already exist
+            if (historyDialog != null && historyDialog.isVisible()) {
+                historyDialog.dispose();
             }
             
-            //Shows a popup under the search field
-            JPopupMenu popup = new JPopupMenu();
+            historyDialog = new JDialog(this, false);
+            historyDialog.setUndecorated(true);
+            historyDialog.setLayout(new BorderLayout());
+            historyDialog.setFocusableWindowState(false);
             
-            //Insert inside popup history
-            for(String word : history) {
-                JMenuItem item = new JMenuItem(word);
-                item.addActionListener(ev -> {
-                    txtSearch.setText(word);
-                    popup.setVisible(false);
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setBackground(Color.WHITE);
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(0, 0, 2, 0)
+            ));
+            
+            for (String word : history) {
+                JPanel item = new JPanel(new BorderLayout());
+                item.setBorder(BorderFactory.createEmptyBorder(8,12,8,12));
+                item.setBackground(Color.WHITE);
+                item.setMaximumSize(new Dimension(txtSearch.getWidth(), 40));
+                
+                JLabel lblWord = new JLabel(word);
+                lblWord.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                
+                item.addMouseListener(new MouseAdapter() {
+                    public void mouseClicked(MouseEvent ev) {
+                        txtSearch.setText(word);
+                        hideHistory();
+                    }
                 });
-                popup.add(item);
+                
+                item.add(lblWord, BorderLayout.WEST);
+                panel.add(item);
+                
+                if (history.indexOf(word) < history.size() - 1) {
+                    JSeparator sep = new JSeparator();
+                    sep.setForeground(new Color(230, 230, 230));
+                    sep.setMaximumSize(new Dimension(txtSearch.getWidth(), 1));
+                    panel.add(sep);
+                }
             }
             
-            popup.show(txtSearch, 0, txtSearch.getHeight());
-        }catch(SQLException e) {
-            e.printStackTrace();
+            historyDialog.add(panel);
+            historyDialog.pack();
+            
+            //Set history under search field
+            Point searchPosition = txtSearch.getLocationOnScreen();
+            int positionX = searchPosition.x;
+            int positionY = searchPosition.y + txtSearch.getHeight();
+            
+            //Defines the size to go along with search field
+            int width = txtSearch.getWidth();
+            int heightItem = 41;
+            int maxHeight = 232;
+
+            int height = history.size() * heightItem;
+            int finalHeight = Math.min(height + 2, maxHeight);
+
+            //Apply all metrics to show
+            historyDialog.setLocation(positionX, positionY);
+            historyDialog.setSize(width, finalHeight);
+            historyDialog.setVisible(true);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null,e.getMessage(), "Erro",
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void hideHistory() {
+        if (historyDialog != null && historyDialog.isVisible()) {
+            historyDialog.dispose();
+            historyDialog = null;
+        }
     }
     
     private JPanel createVideo(Video video) {
@@ -160,7 +222,7 @@ public class MenuPanel extends javax.swing.JFrame {
         int sec = time % 60;
         String strTime;
         
-        if(hour < 0) {
+        if(hour <= 0) {
             strTime = String.format("%02d:%02d", min, sec);
         }else{
             strTime = String.format("%02d:%02d:%02d", hour, min, sec);
@@ -192,7 +254,7 @@ public class MenuPanel extends javax.swing.JFrame {
         for(Video v : videos) {
             //Secure the scale of the card will be respect
             JPanel wrapper = 
-            new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
+            new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
             wrapper.setOpaque(false);
             
             wrapper.add(createVideo(v));
