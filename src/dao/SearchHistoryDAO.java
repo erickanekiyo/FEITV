@@ -40,15 +40,16 @@ public class SearchHistoryDAO {
     
     public void saveSearch(int idUser, String word) throws SQLException {
         //Verify if already was searched last time
-        if (!isLastSearch(idUser, word)) {
-            String sql = "INSERT INTO tbsearch_history (id_user, search_term) "
-                         + "VALUES (?, ?)";
-            try (PreparedStatement statement = conn.prepareStatement(sql)) {
-                statement.setInt(1, idUser);
-                statement.setString(2, word);
-                statement.executeUpdate();
+            String sql = "INSERT INTO tbsearch_history (id_user, search_term, searched_at) "
+                         + "VALUES (?, ?, NOW()) "
+                         + "ON CONFLICT (id_user, search_term) "
+                         + "DO UPDATE SET searched_at = NOW()";
+
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, idUser);
+            statement.setString(2, word.toLowerCase().trim());
+            statement.executeUpdate();
             }
-        }
     }
     
     private boolean isLastSearch(int idUser, String word) throws SQLException {

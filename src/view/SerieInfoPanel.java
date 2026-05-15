@@ -125,17 +125,19 @@ public class SerieInfoPanel extends javax.swing.JFrame {
     }                               
 
     private void btnAddListActionPerformed() {
-        try {
-            control.addSerieToList(user, serie);
-            lblFav.setEnabled(true);
-            JOptionPane.showMessageDialog(this, "Adicionada aos favoritos!");
-            
-            new FavoritesPanel(conn, user).setVisible(true);
-            this.dispose();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
-        }
+    try {
+        boolean newState = control.toggleFavorite(user, serie);
+        
+        lblFav.setEnabled(newState);
+        
+        String msg = newState ? "Adicionada aos favoritos!" 
+                : "Removida dos favoritos!";
+        JOptionPane.showMessageDialog(this, msg);
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
     }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.

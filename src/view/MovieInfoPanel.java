@@ -110,16 +110,18 @@ public class MovieInfoPanel extends javax.swing.JFrame {
 
     private void btnAddListActionPerformed() {
         try {
-            control.addMovieToList(user, movie);
+            boolean isNowFavorite = control.toggleFavorite(user, movie);
             
-            lblFavIcon.setEnabled(true);
-            JOptionPane.showMessageDialog(this, "Adicionado aos favoritos!");
-        
-            new FavoritesPanel(conn, user).setVisible(true);
-            this.dispose();
-        }catch (SQLException e) {
+            lblFavIcon.setEnabled(isNowFavorite);
+
+            String msg = isNowFavorite ? "Filme adicionado aos favoritos!" 
+                    : "Filme removido dos favoritos!";
+            JOptionPane.showMessageDialog(this, msg);
+
+        } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, 
-                "Erro ao adicionar aos favoritos: " + e.getMessage());
+                "Erro ao processar favoritos: " + e.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -47,6 +47,20 @@ public class ControlSerieInfo {
         dao.addToList(user.getId(), serie.getId());
     }
     
+    public void removeSerieFromList(User user, Serie serie) throws SQLException {
+        dao.removeFromList(user.getId(), serie.getId());
+    }
+    
+    public boolean toggleFavorite(User user, Serie serie) throws SQLException {
+        boolean isFav = checkIfFavorite(user, serie);
+        if (isFav) {
+            removeSerieFromList(user, serie);
+        } else {
+            addSerieToList(user, serie);
+        }
+        return !isFav;
+    }
+    
     public boolean checkIfLiked(User user, Serie serie) throws SQLException {
         return dao.isLiked(user.getId(), serie.getId());
     }

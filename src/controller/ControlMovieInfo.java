@@ -39,6 +39,20 @@ public class ControlMovieInfo {
         return dao.isVideoInList(user.getId(), movie.getId());
     }
     
+    public boolean toggleFavorite(User user, Movie movie) throws SQLException {
+        boolean currentlyFav = checkIfFavorite(user, movie);
+        if (currentlyFav) {
+            removeMovieFromList(user, movie);
+        } else {
+            addMovieToList(user, movie);
+        }
+        return !currentlyFav;
+    }
+    
+    public void removeMovieFromList(User user, Movie movie) throws SQLException {
+    dao.removeFromList(user.getId(), movie.getId());
+}
+    
     public boolean toggleLike(User user, Movie movie) throws SQLException {
         boolean currentlyLiked = dao.isLiked(user.getId(), movie.getId());
         if (currentlyLiked) {

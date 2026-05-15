@@ -101,16 +101,29 @@ public class MenuPanel extends javax.swing.JFrame {
                     
                     //Just search and Save when ENTER is pressed
                     if (key.getKeyCode() == KeyEvent.VK_ENTER) {
-                        List<Video> resultados = videoDAO.searchByTitle(words);
-                        JOptionPane.showMessageDialog(null,
-                                "Resultados encontrados");
+                        if (!words.isEmpty()) {
+                            try {
+                                List<Video> resultados = 
+                                        videoDAO.searchByTitle(words);
+                                
+                                SearchHistoryDAO historyDAO = 
+                                        new SearchHistoryDAO(conn);
+                                historyDAO.saveSearch(user.getId(), words); 
 
-                        if (resultados.isEmpty()) {
-                            JOptionPane.showMessageDialog(null, 
-                                "Nada encontrado para: " + words);
-                            loadVideos(videoDAO.listVideos(user.getId()));
-                        } else {
-                            loadVideos(resultados);
+                                if (resultados.isEmpty()) {
+                                    JOptionPane.showMessageDialog(null, 
+                                            "Nada encontrado para: " + words);
+                                    loadVideos(videoDAO.listVideos(user.getId()));
+                                } else {
+                                    loadVideos(resultados);
+                                }
+
+                                hideHistory();
+
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                JOptionPane.showMessageDialog(null, "Erro ao processar busca.");
+                            }
                         }
                     }
                 } catch (SQLException e) {
@@ -368,6 +381,8 @@ public class MenuPanel extends javax.swing.JFrame {
 
         lblUserIcon.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
+        txtSearch.addActionListener(this::txtSearchActionPerformed);
+
         lblFavIcon.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -408,6 +423,10 @@ public class MenuPanel extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearchActionPerformed
 
     /**
      * @param args the command line arguments

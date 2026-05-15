@@ -169,17 +169,6 @@ public class VideoDAO {
             statement.executeUpdate();
         }
     }
-
-    //Remove vídeo of the list
-    public void removeFromList(int idUser, int idVideo) throws SQLException {
-        String sql = "DELETE FROM tblist WHERE id_user = ? AND id_video = ?";
-        
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setInt(1, idUser);
-            statement.setInt(2, idVideo);
-            statement.executeUpdate();
-        }
-    }
     
     public boolean isVideoInList(int idUser, int idVideo) throws SQLException {
         String sql = "SELECT 1 FROM tblist WHERE id_user = ? AND id_video = ?";
@@ -190,6 +179,16 @@ public class VideoDAO {
             try (ResultSet result = statement.executeQuery()) {
                 return result.next(); // Retorna true se encontrar um registro
             }
+        }
+    }
+    
+    public void removeFromList(int userId, int videoId) throws SQLException {
+        String sql = "DELETE FROM tblist WHERE id_user = ? AND id_video = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, videoId);
+            stmt.executeUpdate();
         }
     }
     
