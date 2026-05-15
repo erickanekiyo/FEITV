@@ -64,6 +64,17 @@ public class MenuPanel extends javax.swing.JFrame {
         setScaledIcon(lblUserIcon, "/resources/profile.png");
         setScaledIcon(lblFavIcon, "/resources/star.png");
         
+        //Set Icons as button
+        AsButton(lblFavIcon, () -> {
+            new FavoritesPanel().setVisible(true);
+            this.dispose();
+        });
+        
+        AsButton(lblUserIcon, () -> {
+            new ProfilePanel().setVisible(true);
+            this.dispose();
+        });
+        
         //Start the search field
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
@@ -133,6 +144,27 @@ public class MenuPanel extends javax.swing.JFrame {
         }
     }
     
+    private void AsButton(JLabel label, Runnable action) {
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                action.run();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent evt) {
+                label.setOpaque(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent evt) {
+                label.setOpaque(false);
+                label.setBackground(null);
+            }
+        });
+    }
     
     private void showHistory() {
         try {
