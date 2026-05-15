@@ -31,6 +31,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import model.Movie;
+import model.Serie;
 import model.User;
 import model.Video;
 
@@ -51,6 +53,7 @@ public class MenuPanel extends javax.swing.JFrame {
     public MenuPanel(ControlLoginPanel cLogin, Connection conn, User user)
                                                            throws SQLException {
         initComponents();
+        this.setLocationRelativeTo(null);
         this.cLogin = cLogin;
         this.conn = conn;
         this.user = user;
@@ -65,12 +68,12 @@ public class MenuPanel extends javax.swing.JFrame {
         setScaledIcon(lblFavIcon, "/resources/star.png");
         
         //Set Icons as button
-        AsButton(lblFavIcon, () -> {
+        asButton(lblFavIcon, () -> {
             new FavoritesPanel().setVisible(true);
             this.dispose();
         });
         
-        AsButton(lblUserIcon, () -> {
+        asButton(lblUserIcon, () -> {
             new ProfilePanel().setVisible(true);
             this.dispose();
         });
@@ -144,7 +147,7 @@ public class MenuPanel extends javax.swing.JFrame {
         }
     }
     
-    private void AsButton(JLabel label, Runnable action) {
+    private void asButton(JLabel label, Runnable action) {
         label.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         label.addMouseListener(new MouseAdapter() {
@@ -295,8 +298,13 @@ public class MenuPanel extends javax.swing.JFrame {
         
         //Open video info
         card.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
-                new VideoInfoPanel().setVisible(true);
+                if (video instanceof Movie) {
+                    new MovieInfoPanel((Movie) video, user, conn).setVisible(true);
+                } else if (video instanceof Serie) {
+                    new SerieInfoPanel((Serie) video, user, conn).setVisible(true);
+                }
             }
         });
 
@@ -356,6 +364,10 @@ public class MenuPanel extends javax.swing.JFrame {
                 .addComponent(scrollpnlMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 618, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
+        lblUserIcon.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        lblFavIcon.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -373,19 +385,21 @@ public class MenuPanel extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblSearchIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblUsername)
-                    .addComponent(lblUserIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblSearchIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblUsername, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblUserIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblSearchIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblFavIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );

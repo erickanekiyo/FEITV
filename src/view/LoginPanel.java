@@ -22,6 +22,7 @@ public class LoginPanel extends javax.swing.JFrame {
     
     public LoginPanel() {
         initComponents();
+        this.setLocationRelativeTo(null);
         control = new ControlLoginPanel(this);
     }
 

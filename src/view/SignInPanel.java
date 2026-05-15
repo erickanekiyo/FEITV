@@ -22,6 +22,7 @@ public class SignInPanel extends javax.swing.JFrame {
      */
     public SignInPanel() {
         initComponents();
+        this.setLocationRelativeTo(null);
         control = new ControlSignInPanel(this);
     }
 

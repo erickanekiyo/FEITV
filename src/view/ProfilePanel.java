@@ -17,6 +17,7 @@ public class ProfilePanel extends javax.swing.JFrame {
      */
     public ProfilePanel() {
         initComponents();
+        this.setLocationRelativeTo(null);
     }
 
     /**
