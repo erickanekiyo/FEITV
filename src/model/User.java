@@ -20,6 +20,7 @@ public class User {
     public User(String name, String password) {
         this.name = name;
         this.password = password;
+        this.listReproduction = new ListReproduction();
     }
 
     public User(String name, String password, String gender, int age) {
