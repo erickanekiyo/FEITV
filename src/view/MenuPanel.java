@@ -75,7 +75,7 @@ public class MenuPanel extends javax.swing.JFrame {
         
         //Set Icons as button
         asButton(lblFavIcon, () -> {
-            new FavoritesPanel().setVisible(true);
+            new FavoritesPanel(conn, user).setVisible(true);
             this.dispose();
         });
         

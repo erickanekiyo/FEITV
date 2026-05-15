@@ -27,15 +27,15 @@ public class SerieDAO {
     
     private Serie buildSerie(ResultSet result) throws SQLException {
         Serie serie = new Serie();
-        serie.setId(result.getInt("video.id"));
-        serie.setTitle(result.getString("video.title"));
-        serie.setThumb(result.getString("video.thumb"));
-        serie.setDuration(result.getInt("video.duration"));
-        serie.setDataUp(result.getTimestamp("video.data_up"));
-        serie.setDescription(result.getString("video.description"));
-        serie.setEpisode(result.getInt("serie.episode"));
-        serie.setTotalEpisodes(result.getInt("serie.total_episodes"));
-        serie.setCurrentState(result.getString("serie.current_state"));
+        serie.setId(result.getInt("id"));
+        serie.setTitle(result.getString("title"));
+        serie.setThumb(result.getString("thumb"));
+        serie.setDuration(result.getInt("duration"));
+        serie.setDataUp(result.getTimestamp("data_up"));
+        serie.setDescription(result.getString("description"));
+        serie.setEpisode(result.getInt("episode"));
+        serie.setTotalEpisodes(result.getInt("total_episodes"));
+        serie.setCurrentState(result.getString("current_state"));
         return serie;
     }
     

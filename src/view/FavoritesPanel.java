@@ -4,22 +4,118 @@
  */
 package view;
 
+import dao.VideoDAO;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import model.Movie;
+import model.Serie;
+import model.User;
+import model.Video;
+
 /**
  *
  * @author ekpri
  */
 public class FavoritesPanel extends javax.swing.JFrame {
+    private Connection conn;
+    private User user;
+    private VideoDAO videoDAO;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FavoritesPanel.class.getName());
 
     /**
      * Creates new form FavoritesPanel
      */
-    public FavoritesPanel() {
+    public FavoritesPanel(Connection conn, User user) {
         initComponents();
         this.setLocationRelativeTo(null);
+        // DISPOSE garante que o menu principal continue aberto ao fechar os favoritos
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE); 
+        this.conn = conn;
+        this.user = user;
+        this.videoDAO = new VideoDAO(conn);
+        
+        atualizarFavoritos();
     }
 
+    private void atualizarFavoritos() {
+        try {
+            // Busca os vídeos que o usuário favoritou (tabela tblist)
+            List<Video> favoritos = videoDAO.listFavVideos(user.getId());
+            loadVideos(favoritos);
+        } catch (SQLException e) {
+            System.err.println("Erro ao carregar favoritos: " + e.getMessage());
+        }
+    }
+
+    private void loadVideos(List<Video> videos) {
+        // Criamos o grid dinâmico: 3 colunas, linhas automáticas (0)
+        JPanel grid = new JPanel(new GridLayout(0, 3, 20, 20));
+        grid.setBackground(new Color(245, 245, 245));
+
+        for (Video v : videos) {
+            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            wrapper.setOpaque(false);
+            wrapper.add(createVideo(v));
+            grid.add(wrapper);
+        }
+
+        // Importante: setViewportView coloca o grid dentro da área de rolagem
+        jScrollPane1.setViewportView(grid);
+        jScrollPane1.revalidate();
+        jScrollPane1.repaint();
+    }
+
+    private JPanel createVideo(Video video) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setPreferredSize(new Dimension(220, 180));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        // Thumbnail - Certifique-se que o caminho da imagem está correto no seu projeto
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/default_thumbnail.png"));
+            Image scaledImage = icon.getImage().getScaledInstance(220, 120, Image.SCALE_SMOOTH);
+            JLabel thumb = new JLabel(new ImageIcon(scaledImage));
+            card.add(thumb, BorderLayout.CENTER);
+        } catch (Exception e) {
+            card.add(new JLabel("Sem Imagem"), BorderLayout.CENTER);
+        }
+
+        // Título do Vídeo
+        JLabel title = new JLabel(video.getTitle());
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        title.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        card.add(title, BorderLayout.SOUTH);
+
+        // Clique para abrir detalhes (igual ao Menu principal)
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (video instanceof Movie) {
+                    new MovieInfoPanel((Movie) video, user, conn).setVisible(true);
+                } else if (video instanceof Serie) {
+                    new SerieInfoPanel((Serie) video, user, conn).setVisible(true);
+                }
+            }
+        });
+
+        return card;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -30,6 +126,7 @@ public class FavoritesPanel extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -40,17 +137,19 @@ public class FavoritesPanel extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
-                .addGap(240, 240, 240)
+                .addGap(314, 314, 314)
                 .addComponent(jLabel1)
-                .addContainerGap(246, Short.MAX_VALUE))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(568, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 550, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -59,29 +158,30 @@ public class FavoritesPanel extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FavoritesPanel().setVisible(true));
-    }
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+//            logger.log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(() -> new FavoritesPanel().setVisible(true));
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

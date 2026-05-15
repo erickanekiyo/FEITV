@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 import model.Movie;
 import model.User;
 
@@ -35,6 +36,7 @@ public class MovieInfoPanel extends javax.swing.JFrame {
     public MovieInfoPanel(Movie movie, User user, Connection conn) {
         initComponents();
         this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.movie = movie;
         this.user = user;
         this.conn = conn;
@@ -113,7 +115,7 @@ public class MovieInfoPanel extends javax.swing.JFrame {
             lblFavIcon.setEnabled(true);
             JOptionPane.showMessageDialog(this, "Adicionado aos favoritos!");
         
-            new FavoritesPanel().setVisible(true);
+            new FavoritesPanel(conn, user).setVisible(true);
             this.dispose();
         }catch (SQLException e) {
             JOptionPane.showMessageDialog(this, 

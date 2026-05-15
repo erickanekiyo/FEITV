@@ -98,7 +98,7 @@ public class VideoDAO {
     //List videos in the favorist list of the user
     public List<Video> listFavVideos(int idUser) throws SQLException {
         List<Video> list = new ArrayList<>();
-        String sql = "SELECT v.*, "
+        String sql = "SELECT video.*, "
                      + "CASE WHEN movie.id IS NOT NULL THEN 'movie' "
                      + "ELSE 'serie' END AS type, "
                      + "serie.total_episodes "

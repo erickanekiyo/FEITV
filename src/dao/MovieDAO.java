@@ -28,11 +28,11 @@ public class MovieDAO {
     private Movie buildFilme(ResultSet result) throws SQLException {
         Movie movie = new Movie();
         movie.setId(result.getInt("id"));
-        movie.setThumb(result.getString("video.thumb"));
+        movie.setThumb(result.getString("thumb"));
         movie.setTitle(result.getString("title"));
-        movie.setDuration(result.getInt("video.duration"));
-        movie.setDataUp(result.getTimestamp("video.data_up"));
-        movie.setDescription(result.getString("video.description"));
+        movie.setDuration(result.getInt("duration"));
+        movie.setDataUp(result.getTimestamp("data_up"));
+        movie.setDescription(result.getString("description"));
         movie.setDirector(result.getString("director"));
         movie.setGenre(result.getString("genre"));
         return movie;

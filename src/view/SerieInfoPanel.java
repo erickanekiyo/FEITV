@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 import model.Serie;
 import model.User;
 /**
@@ -34,6 +35,7 @@ public class SerieInfoPanel extends javax.swing.JFrame {
     public SerieInfoPanel(Serie serie, User user, Connection conn) {
         initComponents();
         this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.serie = serie;
         this.user = user;
         this.conn = conn;
@@ -128,7 +130,7 @@ public class SerieInfoPanel extends javax.swing.JFrame {
             lblFav.setEnabled(true);
             JOptionPane.showMessageDialog(this, "Adicionada aos favoritos!");
             
-            new FavoritesPanel().setVisible(true);
+            new FavoritesPanel(conn, user).setVisible(true);
             this.dispose();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
