@@ -8,9 +8,10 @@ import dao.UserDAO;
 import dao.Connect;
 import model.User;
 import view.ModifyAccountPanel;
-import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -19,27 +20,35 @@ import java.sql.SQLException;
 public class ControlModifyAccount {
     private ModifyAccountPanel view;
     private User user;
+    private Connection conn;
     
-    public ControlModifyAccount(ModifyAccountPanel view, User user){
+    public ControlModifyAccount(ModifyAccountPanel view, User user, 
+            Connection conn){
         this.view = view;
         this.user = user;
+        this.conn = conn;
     }
     
     public void update(){
-        String newName = user.getName();
-        String newPassword = view.getTxtNewPassword().getText();
-        User user = new User(newName, newPassword);
-        Connect connect = new Connect();
+        String newName = view.getTxtNewName().getText().trim();
+        String newPassword = view.getTxtNewPassword().getText().trim();
         
-        try{
-            Connection conn = connect.getConnection();
+        if (newName.isEmpty() || newPassword.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Preencha todos os campos!");
+            return;
+        }
+
+        try {
             UserDAO dao = new UserDAO(conn);
+            user.setName(newName);
+            user.setPassword(newPassword);
+            
             dao.update(user);
-            JOptionPane.showMessageDialog(view, "Alteração Realizada", "Aviso", 
-                                          JOptionPane.INFORMATION_MESSAGE);
-        }catch(SQLException e){
-            JOptionPane.showMessageDialog(view, e, "Erro", 
-                                          JOptionPane.INFORMATION_MESSAGE);
+
+            JOptionPane.showMessageDialog(view, "Dados atualizados com sucesso!");
+            view.dispose();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(view, "Erro ao atualizar: " + e.getMessage());
         }
     }
 }

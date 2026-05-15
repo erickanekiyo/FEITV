@@ -4,7 +4,10 @@
  */
 package controller;
 
+import java.sql.Connection;
 import model.User;
+import view.MenuPanel;
+import view.ModifyAccountPanel;
 import view.ProfilePanel;
 /**
  *
@@ -13,14 +16,22 @@ import view.ProfilePanel;
 public class ControlAccount {
     private ProfilePanel view;
     private User user;
+    private Connection conn;
+    private MenuPanel menuPnl;
     
-    public ControlAccount(ProfilePanel view, User user){
+    public ControlAccount(ProfilePanel view, User user, Connection conn, 
+            MenuPanel menuPnl){
         this.view = view;
         this.user = user;
+        this.conn = conn;
+        this.menuPnl = menuPnl;
     }
     
-    public User callModify(){
-        return user;
+    public void callModify(User user, Connection conn){
+        ModifyAccountPanel modifyPnl = new ModifyAccountPanel(user, conn, menuPnl);
+        modifyPnl.setVisible(true);
+        
+        this.view.dispose();
     }
     
     public User callExclude(){

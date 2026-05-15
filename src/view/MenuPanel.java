@@ -79,7 +79,7 @@ public class MenuPanel extends javax.swing.JFrame {
         });
         
         asButton(lblUserIcon, () -> {
-            new ProfilePanel().setVisible(true);
+            new ProfilePanel(user, conn, this).setVisible(true);
             this.dispose();
         });
         

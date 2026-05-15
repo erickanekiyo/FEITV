@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 import model.User;
 
 /**
@@ -33,24 +34,23 @@ public class UserDAO {
     }
     
     public void insert(User user) throws SQLException{
-        String sql = "insert into tbusers (name, password, gender, age) "
-                     + "values ('"
-                     + user.getName() + "', '"
-                     + user.getPassword() + "', '"
-                     + user.getGender() + "', '"
-                     + user.getAge() + "')";
+        String sql = "INSERT INTO tbusers (name, password, gender, age) "
+                     + "VALUES (?, ?, ?, ?)";
         PreparedStatement statement = conn.prepareStatement(sql);
-        statement.execute();
-        conn.close();
+        statement.setString(1, user.getName());
+        statement.setString(2, user.getPassword());
+        statement.setString(3, user.getGender());
+        statement.setInt(4, user.getAge());
+        statement.executeUpdate();
     }
     
     public void update(User user) throws SQLException{
-        String sql = "update tbusers set password = ? where name = ?";
+        String sql = "UPDATE tbusers SET name = ?, password = ? WHERE id = ?";
         PreparedStatement statement = conn.prepareStatement(sql);
-        statement.setString(1, user.getPassword());
-        statement.setString(2, user.getName());
+        statement.setString(1, user.getName());
+        statement.setString(2, user.getPassword());
+        statement.setInt(3, user.getId());
         statement.execute();
-        conn.close();
     }
     
     public void delete(User user) throws SQLException{
