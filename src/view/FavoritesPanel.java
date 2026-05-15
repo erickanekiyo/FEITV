@@ -85,24 +85,24 @@ public class FavoritesPanel extends javax.swing.JFrame {
         card.setPreferredSize(new Dimension(220, 180));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-
-        // Thumbnail - Certifique-se que o caminho da imagem está correto no seu projeto
+        
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/default_thumbnail.png"));
-            Image scaledImage = icon.getImage().getScaledInstance(220, 120, Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(getClass().getResource(""
+                    + "/resources/default_thumbnail.png"));
+            Image scaledImage = icon.getImage().getScaledInstance(220, 120, 
+                    Image.SCALE_SMOOTH);
             JLabel thumb = new JLabel(new ImageIcon(scaledImage));
             card.add(thumb, BorderLayout.CENTER);
         } catch (Exception e) {
             card.add(new JLabel("Sem Imagem"), BorderLayout.CENTER);
         }
-
-        // Título do Vídeo
+        
         JLabel title = new JLabel(video.getTitle());
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         card.add(title, BorderLayout.SOUTH);
 
-        // Clique para abrir detalhes (igual ao Menu principal)
+        //Opne information panel of the video selected
         card.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -128,7 +128,7 @@ public class FavoritesPanel extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("FAVORITES");

@@ -216,6 +216,7 @@ public class MovieInfoPanel extends javax.swing.JFrame {
     private void btnLikeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLikeActionPerformed
         try {
             control.toggleLike(user, movie);
+            updateLikeButton();
         }catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erro ao processar like: " + e.getMessage());
         }

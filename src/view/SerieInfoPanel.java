@@ -233,7 +233,7 @@ public class SerieInfoPanel extends javax.swing.JFrame {
             control.toggleLike(user, serie);
             updateLikeButton();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao processar like: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
         }
     }//GEN-LAST:event_btnLikeActionPerformed
 

@@ -76,7 +76,6 @@ public class MenuPanel extends javax.swing.JFrame {
         //Set Icons as button
         asButton(lblFavIcon, () -> {
             new FavoritesPanel(conn, user).setVisible(true);
-            this.dispose();
         });
         
         asButton(lblUserIcon, () -> {
@@ -103,6 +102,8 @@ public class MenuPanel extends javax.swing.JFrame {
                     //Just search and Save when ENTER is pressed
                     if (key.getKeyCode() == KeyEvent.VK_ENTER) {
                         List<Video> resultados = videoDAO.searchByTitle(words);
+                        JOptionPane.showMessageDialog(null,
+                                "Resultados encontrados");
 
                         if (resultados.isEmpty()) {
                             JOptionPane.showMessageDialog(null, 
